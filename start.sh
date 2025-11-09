@@ -1,68 +1,67 @@
 #!/bin/bash
 
-echo "🌑 ShadowChain - Starting Simulation..."
-echo ""
+set -euo pipefail
 
-# Check if Python is installed
-if ! command -v python3 &> /dev/null; then
-    echo "❌ Python 3 not found! Please install Python 3.8+"
-    exit 1
+log() {
+  echo "[shadowchain] $1"
+}
+
+log "Starting simulation..."
+echo
+
+# Ensure Python 3 is available (Railway containers may not have it preinstalled)
+if ! command -v python3 >/dev/null 2>&1; then
+  log "Python 3 not found. Attempting installation..."
+  if command -v apt-get >/dev/null 2>&1; then
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update && apt-get install -y python3 python3-pip
+  else
+    log "apt-get not available; cannot auto-install Python."
+  fi
 fi
 
-# Check if Node.js is installed
-if ! command -v node &> /dev/null; then
-    echo "❌ Node.js not found! Please install Node.js 16+"
-    exit 1
+if ! command -v python3 >/dev/null 2>&1; then
+  log "Python 3.8+ is required. Please install it and redeploy."
+  exit 1
 fi
 
-echo "✅ Python found: $(python3 --version)"
-echo "✅ Node.js found: $(node --version)"
-echo ""
+# Ensure Node.js is available
+if ! command -v node >/dev/null 2>&1; then
+  log "Node.js 16+ is required. Please install it and redeploy."
+  exit 1
+fi
 
-# Start backend in background
-echo "🚀 Starting Backend (Mock Node)..."
+log "Python: $(python3 --version)"
+log "Node: $(node --version)"
+echo
+
+# Launch mock backend
+log "Starting backend (mock-node.py) on http://localhost:8899 ..."
 python3 mock-node.py &
 BACKEND_PID=$!
-echo "   Backend PID: $BACKEND_PID"
-echo "   Running on http://localhost:8899"
-echo ""
+log "Backend PID: $BACKEND_PID"
+echo
 
-# Wait for backend to start
 sleep 2
 
-# Check if frontend dependencies are installed
+# Install frontend deps if needed
 if [ ! -d "frontend/node_modules" ]; then
-    echo "📦 Installing frontend dependencies (first time only)..."
-    echo "   This will take 1-2 minutes..."
-    cd frontend
-    npm install
-    cd ..
-    echo ""
+  log "Installing frontend dependencies (npm install)..."
+  (cd frontend && npm install)
+  echo
 fi
 
-# Start frontend
-echo "🚀 Starting Frontend..."
-echo "   Opening on http://localhost:3003"
-echo ""
-cd frontend
-PORT=3003 npm start &
+# Launch frontend
+log "Starting frontend on http://localhost:3003 ..."
+(cd frontend && PORT=3003 npm start) &
 FRONTEND_PID=$!
+log "Frontend PID: $FRONTEND_PID"
+echo
 
-echo ""
-echo "════════════════════════════════════════════════════"
-echo "✅ ShadowChain is running!"
-echo ""
-echo "   Backend:  http://localhost:8899"
-echo "   Frontend: http://localhost:3003"
-echo ""
-echo "   Backend PID:  $BACKEND_PID"
-echo "   Frontend PID: $FRONTEND_PID"
-echo ""
-echo "Press Ctrl+C to stop both services"
-echo "════════════════════════════════════════════════════"
-echo ""
+log "ShadowChain is running."
+log "Backend : http://localhost:8899"
+log "Frontend: http://localhost:3003"
+echo "Press Ctrl+C to stop both services."
 
-# Wait for Ctrl+C
-trap "kill $BACKEND_PID $FRONTEND_PID 2>/dev/null; exit" INT TERM
+trap 'kill $BACKEND_PID $FRONTEND_PID 2>/dev/null; exit' INT TERM
 wait
-
