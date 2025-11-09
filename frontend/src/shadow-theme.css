@@ -1641,6 +1641,22 @@ body {
     display: none;
   }
 
+  .app-footer {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+
+  .footer-left,
+  .footer-right {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .app-footer .separator {
+    display: none;
+  }
+
   .poh-visualizer,
   .tower-bft-section,
   .slot-production,
