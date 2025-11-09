@@ -71,33 +71,39 @@ log "Python: $(python3 --version)"
 log "Node: $(node --version)"
 echo
 
+API_HOST=${API_HOST:-127.0.0.1}
+API_PORT=${API_PORT:-8899}
+APP_PORT=${PORT:-3000}
+
 # Launch mock backend
-log "Starting backend (mock-node.py) on http://localhost:8899 ..."
-python3 mock-node.py &
+log "Starting backend (mock-node.py) on http://${API_HOST}:${API_PORT} ..."
+API_HOST=$API_HOST API_PORT=$API_PORT python3 mock-node.py &
 BACKEND_PID=$!
 log "Backend PID: $BACKEND_PID"
 echo
 
 sleep 2
 
-# Install frontend deps if needed
-if [ ! -d "frontend/node_modules" ]; then
-  log "Installing frontend dependencies (npm install)..."
-  (cd frontend && npm install)
-  echo
-fi
+# Install & build frontend
+log "Installing frontend dependencies..."
+(cd frontend && npm install)
+echo
 
-# Launch frontend
-log "Starting frontend on http://localhost:3003 ..."
-(cd frontend && PORT=3003 npm start) &
-FRONTEND_PID=$!
-log "Frontend PID: $FRONTEND_PID"
+log "Building frontend..."
+(cd frontend && npm run build)
+echo
+
+# Launch Express proxy/server
+log "Starting frontend proxy on port ${APP_PORT} ..."
+PORT=$APP_PORT API_HOST=$API_HOST API_PORT=$API_PORT node frontend/server.js &
+SERVER_PID=$!
+log "Frontend PID: $SERVER_PID"
 echo
 
 log "ShadowChain is running."
-log "Backend : http://localhost:8899"
-log "Frontend: http://localhost:3003"
+log "Backend : http://${API_HOST}:${API_PORT}"
+log "Frontend: http://0.0.0.0:${APP_PORT}"
 echo "Press Ctrl+C to stop both services."
 
-trap 'kill $BACKEND_PID $FRONTEND_PID 2>/dev/null; exit' INT TERM
-wait
+trap 'kill $BACKEND_PID $SERVER_PID 2>/dev/null; exit' INT TERM
+wait $SERVER_PID

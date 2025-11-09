@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ChainMetrics } from '../hooks/useChainMetrics';
+import { apiUrl } from '../utils/apiBase';
 
 interface Props {
   metrics: ChainMetrics | null;
@@ -13,8 +14,8 @@ export default function Consensus({ metrics }: Props) {
     const loadData = async () => {
       try {
         const [pohRes, valRes] = await Promise.all([
-          fetch('http://localhost:8899/shadow/info'),
-          fetch('http://localhost:8899/shadow/validators').catch(() => ({ json: async () => null }))
+          fetch(apiUrl('/shadow/info')),
+          fetch(apiUrl('/shadow/validators')).catch(() => ({ json: async () => null }))
         ]);
         
         const pohInfo = await pohRes.json();
@@ -145,4 +146,3 @@ export default function Consensus({ metrics }: Props) {
     </div>
   );
 }
-

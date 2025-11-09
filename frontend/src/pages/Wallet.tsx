@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { apiUrl } from '../utils/apiBase';
 
 export default function Wallet() {
   const [transparentAddress, setTransparentAddress] = useState('');
@@ -14,7 +15,7 @@ export default function Wallet() {
 
   const generateShieldedAddress = async () => {
     try {
-      const response = await fetch('http://localhost:8899/address/generate');
+      const response = await fetch(apiUrl('/address/generate'));
       const address = await response.json();
       setShieldedAddress(address);
     } catch (err) {
@@ -144,4 +145,3 @@ export default function Wallet() {
     </div>
   );
 }
-

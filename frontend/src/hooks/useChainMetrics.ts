@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { apiUrl } from '../utils/apiBase';
 
 export interface ChainMetrics {
   slot: number;
@@ -24,7 +25,7 @@ export function useChainMetrics() {
   useEffect(() => {
     const fetchMetrics = async () => {
       try {
-        const response = await fetch('http://localhost:8899/shadow/info');
+        const response = await fetch(apiUrl('/shadow/info'));
         const data = await response.json();
 
         // Map API response to metrics
@@ -88,4 +89,3 @@ export function useChainMetrics() {
 
   return { metrics: effectiveMetrics, loading };
 }
-

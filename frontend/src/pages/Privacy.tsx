@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ChainMetrics } from '../hooks/useChainMetrics';
+import { apiUrl } from '../utils/apiBase';
 
 interface Props {
   metrics: ChainMetrics | null;
@@ -12,7 +13,7 @@ export default function Privacy({ metrics }: Props) {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const infoRes = await fetch('http://localhost:8899/shadow/info');
+        const infoRes = await fetch(apiUrl('/shadow/info'));
         const infoData = await infoRes.json();
         setPrivacyInfo(infoData.privacy);
         setPoolData(infoData);
@@ -150,4 +151,3 @@ export default function Privacy({ metrics }: Props) {
     </div>
   );
 }
-

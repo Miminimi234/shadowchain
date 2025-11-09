@@ -7,6 +7,7 @@ import time
 import random
 import hashlib
 import math
+import os
 
 # Global state
 start_time = time.time()
@@ -418,29 +419,22 @@ class ShadowChainNode(BaseHTTPRequestHandler):
         pass
 
 if __name__ == '__main__':
-    server = HTTPServer(('127.0.0.1', 8899), ShadowChainNode)
-    print('╔═══════════════════════════════════════════════════════════════╗')
-    print('║                                                                 ║')
-    print('║              SHADOWCHAIN NODE - MAINNET-BETA                    ║')
-    print('║                                                                 ║')
-    print('╠═══════════════════════════════════════════════════════════════╣')
-    print('║                                                                 ║')
-    print('║  RPC:           http://localhost:8899                           ║')
-    print('║  Consensus:     Proof of History + Tower BFT                    ║')
-    print('║  Privacy:       Sapling Shielded Pool                           ║')
-    print('║  Performance:   50,000+ TPS                                     ║')
-    print('║                                                                 ║')
-    print('║  Slot Time:     400ms                                           ║')
-    print('║  Finality:      32 slots (~12.8s)                               ║')
-    print('║  ZK System:     Groth16 (BN254)                                 ║')
-    print('║                                                                 ║')
-    print('║  Frontend:      http://localhost:3003                           ║')
-    print('║                                                                 ║')
-    print('╚═══════════════════════════════════════════════════════════════╝')
+    api_host = os.environ.get('API_HOST', '0.0.0.0')
+    api_port = int(os.environ.get('API_PORT') or os.environ.get('PORT', '8899'))
+    server = HTTPServer((api_host, api_port), ShadowChainNode)
+
+    base_url = f'http://{api_host}:{api_port}'
+    frontend_url = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
+
+    print('=' * 70)
+    print(' ShadowChain Mock Node')
+    print('=' * 70)
+    print(f' RPC Endpoint : {base_url}')
+    print(f' Frontend URL : {frontend_url}')
+    print(' Consensus    : Proof of History + Tower BFT')
+    print(' Privacy      : Sapling Shielded Pool')
+    print(' Performance  : 50,000+ TPS target')
+    print('=' * 70)
     print('')
-    print('⚡ High-performance privacy blockchain')
-    print('🔐 Sapling circuit: 99.87% proof success rate')
-    print('📊 Shielded pool: 12% transaction rate')
-    print('🎯 Production-grade metrics enabled')
-    print('')
+
     server.serve_forever()

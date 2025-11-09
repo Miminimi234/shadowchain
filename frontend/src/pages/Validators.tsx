@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ChainMetrics } from '../hooks/useChainMetrics';
+import { apiUrl } from '../utils/apiBase';
 
 interface Props {
   metrics?: ChainMetrics | null;
@@ -11,7 +12,7 @@ export default function Validators({ metrics }: Props) {
   useEffect(() => {
     const loadValidators = async () => {
       try {
-        const response = await fetch('http://localhost:8899/shadow/validators');
+        const response = await fetch(apiUrl('/shadow/validators'));
         const data = await response.json();
         if (data?.validators) {
           setValidators(data.validators);
@@ -109,4 +110,3 @@ export default function Validators({ metrics }: Props) {
     </div>
   );
 }
-

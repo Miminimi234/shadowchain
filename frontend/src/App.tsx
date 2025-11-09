@@ -8,6 +8,7 @@ import Transactions from './pages/Transactions';
 import Validators from './pages/Validators';
 import Wallet from './pages/Wallet';
 import './shadow-theme.css';
+import { apiUrl } from './utils/apiBase';
 
 type Page = 'dashboard' | 'consensus' | 'privacy' | 'transactions' | 'wallet' | 'validators';
 
@@ -184,7 +185,7 @@ function App() {
         <div className="footer-right">
           <a href="http://localhost:3001" target="_blank" rel="noopener noreferrer">Faucet</a>
           <span className="separator">|</span>
-          <a href="http://localhost:8899/health" target="_blank" rel="noopener noreferrer">Node</a>
+          <a href={apiUrl('/health')} target="_blank" rel="noopener noreferrer">Node</a>
         </div>
       </footer>
     </div>
