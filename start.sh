@@ -1,6 +1,9 @@
-#!/bin/bash
+#!/bin/sh
 
-set -euo pipefail
+set -eu
+if [ -n "${BASH_VERSION:-}" ]; then
+  set -o pipefail
+fi
 
 log() {
   echo "[shadowchain] $1"
