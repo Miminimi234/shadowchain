@@ -5,6 +5,21 @@ if [ -n "${BASH_VERSION:-}" ]; then
   set -o pipefail
 fi
 
+APT_UPDATED=0
+
+apt_install() {
+  if ! command -v apt-get >/dev/null 2>&1; then
+    return 1
+  fi
+
+  export DEBIAN_FRONTEND=noninteractive
+  if [ "${APT_UPDATED}" -eq 0 ]; then
+    apt-get update
+    APT_UPDATED=1
+  fi
+  apt-get install -y "$@"
+}
+
 log() {
   echo "[shadowchain] $1"
 }
@@ -15,10 +30,7 @@ echo
 # Ensure Python 3 is available (Railway containers may not have it preinstalled)
 if ! command -v python3 >/dev/null 2>&1; then
   log "Python 3 not found. Attempting installation..."
-  if command -v apt-get >/dev/null 2>&1; then
-    export DEBIAN_FRONTEND=noninteractive
-    apt-get update && apt-get install -y python3 python3-pip
-  else
+  if ! apt_install python3 python3-pip; then
     log "apt-get not available; cannot auto-install Python."
   fi
 fi
@@ -28,8 +40,29 @@ if ! command -v python3 >/dev/null 2>&1; then
   exit 1
 fi
 
-# Ensure Node.js is available
-if ! command -v node >/dev/null 2>&1; then
+# Ensure Node.js (>=16) is available
+node_major_version() {
+  if ! command -v node >/dev/null 2>&1; then
+    echo "0"
+    return
+  fi
+  node -p "parseInt(process.versions.node.split('.')[0], 10)" 2>/dev/null || echo "0"
+}
+
+NODE_MAJOR="$(node_major_version)"
+if [ "${NODE_MAJOR}" -lt 16 ]; then
+  if [ "${NODE_MAJOR}" -eq 0 ]; then
+    log "Node.js not found. Attempting installation..."
+  else
+    log "Node.js version $(node -v 2>/dev/null) detected (<16). Attempting upgrade..."
+  fi
+  if ! apt_install nodejs npm; then
+    log "apt-get not available; cannot auto-install Node.js."
+  fi
+  NODE_MAJOR="$(node_major_version)"
+fi
+
+if [ "${NODE_MAJOR}" -lt 16 ]; then
   log "Node.js 16+ is required. Please install it and redeploy."
   exit 1
 fi
