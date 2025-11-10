@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import logo from '../assets/shadowlogo.png';
+import MatrixText from '../components/matrixbg';
 
 interface LandingProps {
   onLaunch: () => void;
@@ -7,17 +8,20 @@ interface LandingProps {
 export default function Landing({ onLaunch }: LandingProps) {
   return (
     <div className="landing">
-      <Hero onLaunch={onLaunch} />
-      <Problem />
-      <Solution />
-      <Features />
-      <HowItWorks />
-      <Privacy />
-      <UseCases />
-      <TechSpecs />
-      <Comparison />
-      <CTA onLaunch={onLaunch} />
-      <Footer />
+      <MatrixText />
+      <div className="landing-content">
+        <Hero onLaunch={onLaunch} />
+        <Problem />
+        <Solution />
+        <Features />
+        <HowItWorks />
+        <Privacy />
+        <UseCases />
+        <TechSpecs />
+        <Comparison />
+        <CTA onLaunch={onLaunch} />
+        <Footer />
+      </div>
     </div>
   );
 }
@@ -25,16 +29,15 @@ export default function Landing({ onLaunch }: LandingProps) {
 function Hero({ onLaunch }: { onLaunch: () => void }) {
   return (
     <section className="hero">
-      <PoHBackground />
-      
+
       <div className="hero-content">
         <div className="hero-logo">
-          <span className="logo-icon">▪</span>
+          <img src={logo} className="logo-icon" alt="ShadowChain logo" />
           <h1>SHADOWCHAIN</h1>
         </div>
 
         <p className="hero-tagline">
-          Privacy-Native Blockchain for the Shadows
+          Privacy-Native Blockchain for the Anons
         </p>
 
         <p className="hero-subtitle">
@@ -45,12 +48,14 @@ function Hero({ onLaunch }: { onLaunch: () => void }) {
           <button className="btn-primary" onClick={onLaunch}>
             Launch App
           </button>
-          <button className="btn-secondary" onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}>
+          <a
+            className="btn-secondary"
+            href="https://github.com/ShadowChain-ops/ShadowChain"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             Read Docs
-          </button>
-          <button className="btn-secondary" onClick={onLaunch}>
-            View Demo
-          </button>
+          </a>
         </div>
 
         <div className="hero-stats">
@@ -67,37 +72,7 @@ function Hero({ onLaunch }: { onLaunch: () => void }) {
   );
 }
 
-function PoHBackground() {
-  const [hashes, setHashes] = useState<string[]>([]);
-
-  useEffect(() => {
-    const generateHash = () => {
-      return Array.from({ length: 16 }, () => 
-        Math.floor(Math.random() * 16).toString(16)
-      ).join('');
-    };
-
-    const interval = setInterval(() => {
-      setHashes(prev => [generateHash(), ...prev.slice(0, 20)]);
-    }, 400);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <div className="poh-background">
-      {hashes.map((hash, i) => (
-        <div
-          key={i}
-          className="hash-line"
-          style={{ opacity: 1 - (i * 0.05) }}
-        >
-          {hash}
-        </div>
-      ))}
-    </div>
-  );
-}
+/* PoHBackground moved to src/components/PoHBackground.tsx */
 
 function Problem() {
   const problems = [
@@ -111,7 +86,7 @@ function Problem() {
     <section className="section problem-section">
       <div className="section-content">
         <h2 className="section-title">THE BLOCKCHAIN TRANSPARENCY PROBLEM</h2>
-        
+
         <div className="problem-grid">
           {problems.map((problem, i) => (
             <div key={i} className="problem-card">
@@ -124,9 +99,9 @@ function Problem() {
 
         <div className="problem-statement">
           <p>
-            Every transaction on Solana, Ethereum, and most blockchains is 
-            <strong> COMPLETELY PUBLIC</strong>. This isn't just inconvenient — 
-            <strong> it's dangerous</strong>.
+            Every transaction on Solana, Ethereum, and most blockchains is
+            <strong> COMPLETELY PUBLIC</strong>. Every wallet, payment, and interaction is visible to anyone who looks.
+            Privacy doesn't exist.
           </p>
         </div>
       </div>
@@ -139,14 +114,14 @@ function Solution() {
     <section className="section solution-section">
       <div className="section-content">
         <h2 className="section-title">SHADOWCHAIN: PRIVACY BY DEFAULT</h2>
-        
+
         <div className="solution-content">
           <div className="solution-text">
             <p className="large-text">
-              We took Solana's blazing-fast architecture and integrated 
+              We took Solana's blazing-fast architecture and integrated
               battle-tested privacy technology.
             </p>
-            
+
             <div className="features-list">
               <div className="feature-item">
                 <span className="feature-icon">✓</span>
@@ -238,7 +213,7 @@ function Features() {
     <section className="section features-section">
       <div className="section-content">
         <h2 className="section-title">CORE FEATURES</h2>
-        
+
         <div className="features-grid">
           {features.map((feature, i) => (
             <div key={i} className="feature-card">
@@ -267,7 +242,7 @@ function HowItWorks() {
         <div className="architecture-grid">
           <div className="architecture-layer">
             <h3>▸ Consensus Layer (Solana)</h3>
-            
+
             <div className="tech-box">
               <h4>Proof of History</h4>
               <div className="tech-description">
@@ -300,7 +275,7 @@ function HowItWorks() {
 
           <div className="architecture-layer">
             <h3>◈ Privacy Layer</h3>
-            
+
             <div className="tech-box">
               <h4>Shielded Pool</h4>
               <div className="tech-description">
@@ -450,7 +425,7 @@ function UseCases() {
     <section className="section use-cases-section">
       <div className="section-content">
         <h2 className="section-title">WHO NEEDS SHADOWCHAIN?</h2>
-        
+
         <div className="use-cases-grid">
           {cases.map((useCase, i) => (
             <div key={i} className="use-case-card">
@@ -603,23 +578,23 @@ function CTA({ onLaunch }: { onLaunch: () => void }) {
     <section className="section cta-section">
       <div className="cta-content">
         <h2>READY TO ENTER THE SHADOWS?</h2>
-        
+
         <div className="cta-buttons">
           <button className="btn-primary large" onClick={onLaunch}>
             LAUNCH APP
           </button>
-          <button className="btn-secondary large">
+          <a
+            className="btn-secondary large"
+            href="https://github.com/ShadowChain-ops/ShadowChain"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             READ DOCS
-          </button>
-          <button className="btn-secondary large">
-            JOIN DISCORD
-          </button>
+          </a>
         </div>
 
         <div className="social-links">
-          <button type="button" className="link-button">
-            ★ Star on GitHub
-          </button>
+          <a className="link-button" href="https://github.com/ShadowChain-ops/ShadowChain" target="_blank" rel="noopener noreferrer">★ Star on GitHub</a>
           <span>•</span>
           <button type="button" className="link-button">
             ◦ Follow on Twitter
@@ -638,20 +613,11 @@ function Footer() {
           <span>▪</span>
           <span>SHADOWCHAIN</span>
         </div>
-        
+
         <div className="footer-links">
-          <button type="button" className="link-button">
-            Documentation
-          </button>
-          <button type="button" className="link-button">
-            GitHub
-          </button>
-          <button type="button" className="link-button">
-            Discord
-          </button>
-          <button type="button" className="link-button">
-            Twitter
-          </button>
+          <a className="link-button" href="https://github.com/ShadowChain-ops/ShadowChain" target="_blank" rel="noopener noreferrer">Documentation</a>
+          <a className="link-button" href="https://github.com/ShadowChain-ops/ShadowChain" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <button type="button" className="link-button">Twitter</button>
         </div>
 
         <div className="footer-bottom">
