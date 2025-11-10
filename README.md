@@ -103,6 +103,27 @@ In `frontend/src/hooks/useChainMetrics.ts`:
 const interval = setInterval(fetchMetrics, 2000); // Change 2000 = 2 seconds
 ```
 
+### Frontend API Target
+The React app automatically points to the backend that served the page (same hostname, port `8899`).  
+Override this if your API is exposed elsewhere:
+
+```bash
+# Example: point UI at a hosted API
+export REACT_APP_API_URL="https://api.shadowchain.xyz"
+npm run build
+```
+
+You can also fine-tune individual parts:
+
+| Variable | Purpose | Default |
+|----------|---------|---------|
+| `REACT_APP_API_HOST` | Hostname used when building URLs | Browser hostname |
+| `REACT_APP_API_PORT` | Port appended to API host | `8899` |
+| `REACT_APP_API_PROTOCOL` | `http` or `https` | Browser protocol |
+| `REACT_APP_WS_URL` | Full WebSocket base URL | Derived from API URL |
+
+When these are unset the UI falls back to the browser location, so deployments on Railway/Heroku work without editing source.
+
 ---
 
 ## 📊 Architecture
@@ -288,4 +309,3 @@ Educational simulation project.
 **🌑 ShadowChain - Privacy-Native Blockchain Simulation**
 
 Built with React + TypeScript + Python
-

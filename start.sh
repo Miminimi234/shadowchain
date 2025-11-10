@@ -85,7 +85,7 @@ log "Python: $("$PYTHON_BIN" --version)"
 log "Node: $(node --version)"
 echo
 
-API_HOST=${API_HOST:-127.0.0.1}
+API_HOST=${API_HOST:-0.0.0.0}
 API_PORT=${API_PORT:-8899}
 APP_PORT=${PORT:-3000}
 

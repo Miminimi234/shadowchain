@@ -1,4 +1,8 @@
 import React, { useState } from 'react';
+import { apiPath } from '../config';
+
+const GENERATE_ADDRESS_ENDPOINT = apiPath('/address/generate');
+const faucetEndpoint = (address: string) => apiPath(`/faucet/${address}`);
 
 export default function Wallet() {
   const [transparentAddress, setTransparentAddress] = useState('');
@@ -16,7 +20,7 @@ export default function Wallet() {
 
   const generateShieldedAddress = async () => {
     try {
-      const response = await fetch('http://localhost:8899/address/generate');
+      const response = await fetch(GENERATE_ADDRESS_ENDPOINT);
       const address = await response.json();
       setShieldedAddress(address);
     } catch (err) {
@@ -33,7 +37,7 @@ export default function Wallet() {
     setFaucetMessage('');
     
     try {
-      const response = await fetch(`http://localhost:8899/faucet/${address}`);
+      const response = await fetch(faucetEndpoint(address));
       const data = await response.json();
       
       if (data.success) {
@@ -186,4 +190,3 @@ export default function Wallet() {
     </div>
   );
 }
-

@@ -1,4 +1,7 @@
 import { useState, useEffect } from 'react';
+import { apiPath } from '../config';
+
+const METRICS_ENDPOINT = apiPath('/shadow/info');
 
 export interface ChainMetrics {
   slot: number;
@@ -23,7 +26,10 @@ export function useChainMetrics() {
   useEffect(() => {
     const fetchMetrics = async () => {
       try {
-        const response = await fetch('http://localhost:8899/shadow/info');
+        const response = await fetch(METRICS_ENDPOINT);
+        if (!response.ok) {
+          throw new Error(`ShadowChain API responded with ${response.status}`);
+        }
         const data = await response.json();
         
         // Map API response to metrics
@@ -44,9 +50,10 @@ export function useChainMetrics() {
         };
         
         setMetrics(mappedMetrics);
-        setLoading(false);
       } catch (err) {
         console.error('Failed to fetch metrics:', err);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -58,4 +65,3 @@ export function useChainMetrics() {
 
   return { metrics, loading };
 }
-

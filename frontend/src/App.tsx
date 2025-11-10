@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiPath } from './config';
 import './shadow-theme.css';
 import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
@@ -12,6 +13,8 @@ import { useChainMetrics } from './hooks/useChainMetrics';
 import { useWebSocket } from './hooks/useWebSocket';
 
 type Page = 'dashboard' | 'consensus' | 'privacy' | 'transactions' | 'wallet' | 'validators' | 'bridge';
+
+const NODE_API_LINK = apiPath('/shadow/info');
 
 function App() {
   const [showLanding, setShowLanding] = useState(true);
@@ -242,7 +245,7 @@ function App() {
             Faucet
           </button>
           <span className="separator">|</span>
-          <a href="http://localhost:8899/shadow/info" target="_blank" rel="noopener noreferrer">Node API</a>
+          <a href={NODE_API_LINK} target="_blank" rel="noopener noreferrer">Node API</a>
         </div>
       </footer>
     </div>

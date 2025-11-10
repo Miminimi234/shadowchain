@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { apiPath } from '../config';
 import { ChainMetrics } from '../hooks/useChainMetrics';
 import { NetworkEvent } from '../hooks/useWebSocket';
+
+const INFO_ENDPOINT = apiPath('/shadow/info');
+const EXPLORER_ENDPOINT = apiPath('/shadow/explorer');
 
 interface Props {
   metrics: ChainMetrics | null;
@@ -15,12 +19,12 @@ export default function Dashboard({ metrics, events }: Props) {
     const loadData = async () => {
       try {
         // Load PoH state
-        const pohRes = await fetch('http://localhost:8899/shadow/info');
+        const pohRes = await fetch(INFO_ENDPOINT);
         const pohData = await pohRes.json();
         setPohHash(pohData.poh?.current_hash || '');
 
         // Load recent transactions
-        const txRes = await fetch('http://localhost:8899/shadow/explorer');
+        const txRes = await fetch(EXPLORER_ENDPOINT);
         const txData = await txRes.json();
         setRecentTxs(txData.slice(0, 10));
       } catch (err) {
@@ -151,4 +155,3 @@ export default function Dashboard({ metrics, events }: Props) {
     </div>
   );
 }
-

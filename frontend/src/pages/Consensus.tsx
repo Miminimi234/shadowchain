@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { apiPath } from '../config';
 import { ChainMetrics } from '../hooks/useChainMetrics';
+
+const INFO_ENDPOINT = apiPath('/shadow/info');
+const VALIDATORS_ENDPOINT = apiPath('/shadow/validators');
 
 interface Props {
   metrics: ChainMetrics | null;
@@ -13,8 +17,8 @@ export default function Consensus({ metrics }: Props) {
     const loadData = async () => {
       try {
         const [pohRes, valRes] = await Promise.all([
-          fetch('http://localhost:8899/shadow/info'),
-          fetch('http://localhost:8899/shadow/validators').catch(() => ({ json: async () => null }))
+          fetch(INFO_ENDPOINT),
+          fetch(VALIDATORS_ENDPOINT).catch(() => ({ json: async () => null }))
         ]);
         
         const pohInfo = await pohRes.json();
@@ -145,4 +149,3 @@ export default function Consensus({ metrics }: Props) {
     </div>
   );
 }
-

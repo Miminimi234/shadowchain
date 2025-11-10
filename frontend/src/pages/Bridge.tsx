@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { apiPath } from '../config';
 
 interface BridgeDeposit {
   bridge_id: string;
@@ -32,21 +33,21 @@ export default function Bridge() {
   const [view, setView] = useState<'deposit' | 'withdraw' | 'history'>('deposit');
   const [stats, setStats] = useState<BridgeStats | null>(null);
 
-  useEffect(() => {
-    loadStats();
-    const interval = setInterval(loadStats, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const loadStats = async () => {
+  const loadStats = useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:8899/bridge/stats');
+      const response = await fetch(apiPath('/bridge/stats'));
       const data = await response.json();
       setStats(data);
     } catch (err) {
       console.error('Failed to load bridge stats:', err);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadStats();
+    const interval = setInterval(loadStats, 5000);
+    return () => clearInterval(interval);
+  }, [loadStats]);
 
   return (
     <div className="page-container">
@@ -126,7 +127,7 @@ function DepositView() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('http://localhost:8899/bridge/deposit', {
+      const response = await fetch(apiPath('/bridge/deposit'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -250,21 +251,21 @@ function DepositView() {
 function ProcessingView({ bridgeId }: { bridgeId: string }) {
   const [deposit, setDeposit] = useState<BridgeDeposit | null>(null);
 
-  useEffect(() => {
-    loadDeposit();
-    const interval = setInterval(loadDeposit, 2000);
-    return () => clearInterval(interval);
-  }, [bridgeId]);
-
-  const loadDeposit = async () => {
+  const loadDeposit = useCallback(async () => {
     try {
-      const response = await fetch(`http://localhost:8899/bridge/status/${bridgeId}`);
+      const response = await fetch(apiPath(`/bridge/status/${bridgeId}`));
       const data = await response.json();
       setDeposit(data);
     } catch (err) {
       console.error('Failed to load deposit:', err);
     }
-  };
+  }, [bridgeId]);
+
+  useEffect(() => {
+    loadDeposit();
+    const interval = setInterval(loadDeposit, 2000);
+    return () => clearInterval(interval);
+  }, [bridgeId, loadDeposit]);
 
   if (!deposit) {
     return <div className="loading-spinner">Loading...</div>;
@@ -386,7 +387,7 @@ function WithdrawView() {
 
     setIsLoading(true);
     try {
-      const response = await fetch(`http://localhost:8899/bridge/status/${bridgeId}`);
+      const response = await fetch(apiPath(`/bridge/status/${bridgeId}`));
       const data = await response.json();
       setDeposit(data);
     } catch (error) {
@@ -401,7 +402,7 @@ function WithdrawView() {
 
     setIsWithdrawing(true);
     try {
-      const response = await fetch('http://localhost:8899/bridge/withdraw', {
+      const response = await fetch(apiPath('/bridge/withdraw'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -517,7 +518,7 @@ function HistoryView() {
 
     setIsLoading(true);
     try {
-      const response = await fetch(`http://localhost:8899/bridge/history/${address}`);
+      const response = await fetch(apiPath(`/bridge/history/${address}`));
       const data = await response.json();
       setHistory(data);
     } catch (error) {
@@ -574,4 +575,3 @@ function HistoryView() {
     </div>
   );
 }
-
