@@ -617,9 +617,13 @@ function CTA({ onLaunch }: { onLaunch: () => void }) {
         </div>
 
         <div className="social-links">
-          <a href="#">★ Star on GitHub</a>
+          <button type="button" className="link-button">
+            ★ Star on GitHub
+          </button>
           <span>•</span>
-          <a href="#">◦ Follow on Twitter</a>
+          <button type="button" className="link-button">
+            ◦ Follow on Twitter
+          </button>
         </div>
       </div>
     </section>
@@ -636,10 +640,18 @@ function Footer() {
         </div>
         
         <div className="footer-links">
-          <a href="#">Documentation</a>
-          <a href="#">GitHub</a>
-          <a href="#">Discord</a>
-          <a href="#">Twitter</a>
+          <button type="button" className="link-button">
+            Documentation
+          </button>
+          <button type="button" className="link-button">
+            GitHub
+          </button>
+          <button type="button" className="link-button">
+            Discord
+          </button>
+          <button type="button" className="link-button">
+            Twitter
+          </button>
         </div>
 
         <div className="footer-bottom">
@@ -650,4 +662,3 @@ function Footer() {
     </footer>
   );
 }
-
