@@ -2,6 +2,7 @@
 """ShadowChain Node - Privacy-Native Solana Fork"""
 
 from http.server import HTTPServer, BaseHTTPRequestHandler
+import os
 import json
 import time
 import random
@@ -607,25 +608,28 @@ class ShadowChainNode(BaseHTTPRequestHandler):
         pass
 
 if __name__ == '__main__':
-    server = HTTPServer(('127.0.0.1', 8899), ShadowChainNode)
-    print('╔═══════════════════════════════════════════════════════════════╗')
-    print('║                                                                 ║')
-    print('║              SHADOWCHAIN NODE - MAINNET-BETA                    ║')
-    print('║                                                                 ║')
-    print('╠═══════════════════════════════════════════════════════════════╣')
-    print('║                                                                 ║')
-    print('║  RPC:           http://localhost:8899                           ║')
-    print('║  Consensus:     Proof of History + Tower BFT                    ║')
-    print('║  Privacy:       Sapling Shielded Pool                           ║')
-    print('║  Performance:   50,000+ TPS                                     ║')
-    print('║                                                                 ║')
-    print('║  Slot Time:     400ms                                           ║')
-    print('║  Finality:      32 slots (~12.8s)                               ║')
-    print('║  ZK System:     Groth16 (BN254)                                 ║')
-    print('║                                                                 ║')
-    print('║  Frontend:      http://localhost:3003                           ║')
-    print('║                                                                 ║')
-    print('╚═══════════════════════════════════════════════════════════════╝')
+    # Bind to host/port from environment for cloud providers (Railway, Heroku, etc.)
+    host = os.environ.get('HOST', '0.0.0.0')
+    port = int(os.environ.get('PORT', '8899'))
+    server = HTTPServer((host, port), ShadowChainNode)
+    print(f'╔═══════════════════════════════════════════════════════════════╗')
+    print(f'║                                                                 ║')
+    print(f'║              SHADOWCHAIN NODE - MAINNET-BETA                    ║')
+    print(f'║                                                                 ║')
+    print(f'╠═══════════════════════════════════════════════════════════════╣')
+    print(f'║                                                                 ║')
+    print(f'║  RPC:           http://{host}:{port}                           ║')
+    print(f'║  Consensus:     Proof of History + Tower BFT                    ║')
+    print(f'║  Privacy:       Sapling Shielded Pool                           ║')
+    print(f'║  Performance:   50,000+ TPS                                     ║')
+    print(f'║                                                                 ║')
+    print(f'║  Slot Time:     400ms                                           ║')
+    print(f'║  Finality:      32 slots (~12.8s)                               ║')
+    print(f'║  ZK System:     Groth16 (BN254)                                 ║')
+    print(f'║                                                                 ║')
+    print(f'║  Frontend:      http://{host}:3003 (if running locally)         ║')
+    print(f'║                                                                 ║')
+    print(f'╚═══════════════════════════════════════════════════════════════╝')
     print('')
     print('⚡ High-performance privacy blockchain')
     print('🔐 Sapling circuit: 99.87% proof success rate')
