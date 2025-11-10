@@ -33,6 +33,11 @@ function App() {
     setShowLanding(false);
   };
 
+  const handleReturnToLanding = () => {
+    setShowLanding(true);
+    setMobileMenuOpen(false);
+  };
+
   // Show landing page
   if (showLanding) {
     return <Landing onLaunch={handleLaunchApp} />;
@@ -74,17 +79,24 @@ function App() {
       {/* Header */}
       <header className="app-header">
         <div className="header-left">
-          <div className="logo-container">
-            <svg width="40" height="40" viewBox="0 0 100 100">
-              <ellipse cx="50" cy="50" rx="45" ry="30" fill="none" stroke="#00d4ff" strokeWidth="4"/>
-              <circle cx="50" cy="50" r="15" fill="none" stroke="#00d4ff" strokeWidth="4"/>
-              <circle cx="50" cy="50" r="8" fill="#00d4ff"/>
-            </svg>
-          </div>
-          <div className="brand-info">
-            <h1>SHADOWCHAIN</h1>
-            <p>Privacy-Native High-Performance Blockchain</p>
-          </div>
+          <button
+            type="button"
+            className="header-brand"
+            onClick={handleReturnToLanding}
+            aria-label="Return to landing page"
+          >
+            <div className="logo-container">
+              <svg width="40" height="40" viewBox="0 0 100 100">
+                <ellipse cx="50" cy="50" rx="45" ry="30" fill="none" stroke="#00d4ff" strokeWidth="4"/>
+                <circle cx="50" cy="50" r="15" fill="none" stroke="#00d4ff" strokeWidth="4"/>
+                <circle cx="50" cy="50" r="8" fill="#00d4ff"/>
+              </svg>
+            </div>
+            <div className="brand-info">
+              <h1>SHADOWCHAIN</h1>
+              <p>Privacy-Native High-Performance Blockchain</p>
+            </div>
+          </button>
         </div>
         
         <div className="header-center">

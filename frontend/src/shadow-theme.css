@@ -72,6 +72,23 @@ body {
   gap: 1.5rem;
 }
 
+.header-brand {
+  background: transparent;
+  border: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.header-brand:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 4px;
+}
+
 .logo-container svg {
   filter: drop-shadow(0 0 10px var(--glow-cyan));
   animation: pulse-slow 3s ease-in-out infinite;
