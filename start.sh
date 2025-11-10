@@ -107,9 +107,9 @@ log "Building frontend..."
 (cd frontend && npm run build)
 echo
 
-# Launch Express proxy/server
-log "Starting frontend proxy on port ${APP_PORT} ..."
-PORT=$APP_PORT API_HOST=$API_HOST API_PORT=$API_PORT node frontend/server.js &
+# Serve the production bundle via `serve`
+log "Starting frontend static server on port ${APP_PORT} ..."
+(cd frontend && npx serve -s build -l tcp://0.0.0.0:${APP_PORT}) &
 SERVER_PID=$!
 log "Frontend PID: $SERVER_PID"
 echo
