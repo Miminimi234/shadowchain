@@ -91,7 +91,7 @@ APP_PORT=${PORT:-3000}
 
 # Launch mock backend
 log "Starting backend (mock-node.py) on http://${API_HOST}:${API_PORT} ..."
-API_HOST=$API_HOST API_PORT=$API_PORT "$PYTHON_BIN" mock-node.py &
+HOST=$API_HOST PORT=$API_PORT API_HOST=$API_HOST API_PORT=$API_PORT "$PYTHON_BIN" mock-node.py &
 BACKEND_PID=$!
 log "Backend PID: $BACKEND_PID"
 echo
