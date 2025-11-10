@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { apiUrl } from '../utils/apiBase';
 
 export default function Wallet() {
   const [transparentAddress, setTransparentAddress] = useState('');
   const [shieldedAddress, setShieldedAddress] = useState<any>(null);
   const [balance, setBalance] = useState({transparent: 0, shielded: 0});
+  const [faucetLoading, setFaucetLoading] = useState(false);
+  const [faucetMessage, setFaucetMessage] = useState('');
 
   const generateTransparentAddress = () => {
     const randomHex = Array.from({length: 32}, () => 
@@ -15,7 +16,7 @@ export default function Wallet() {
 
   const generateShieldedAddress = async () => {
     try {
-      const response = await fetch(apiUrl('/address/generate'));
+      const response = await fetch('http://localhost:8899/address/generate');
       const address = await response.json();
       setShieldedAddress(address);
     } catch (err) {
@@ -25,6 +26,32 @@ export default function Wallet() {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
+  };
+
+  const requestFromFaucet = async (address: string) => {
+    setFaucetLoading(true);
+    setFaucetMessage('');
+    
+    try {
+      const response = await fetch(`http://localhost:8899/faucet/${address}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        setBalance(prev => ({
+          ...prev,
+          transparent: prev.transparent + data.amount_shol,
+        }));
+        setFaucetMessage(`✓ Success! Received ${data.amount_shol} SHOL`);
+      } else {
+        setFaucetMessage('✗ Faucet request failed');
+      }
+    } catch (err) {
+      console.error('Faucet error:', err);
+      setFaucetMessage('✗ Faucet unavailable');
+    } finally {
+      setFaucetLoading(false);
+      setTimeout(() => setFaucetMessage(''), 5000);
+    }
   };
 
   return (
@@ -57,6 +84,20 @@ export default function Wallet() {
                   <div className="balance-label">Balance</div>
                   <div className="balance-value">{balance.transparent} SHOL</div>
                 </div>
+                
+                <button 
+                  className="faucet-btn" 
+                  onClick={() => requestFromFaucet(transparentAddress)}
+                  disabled={faucetLoading}
+                >
+                  {faucetLoading ? 'Requesting...' : 'Request from Faucet (1000 SHOL)'}
+                </button>
+                
+                {faucetMessage && (
+                  <div className={`faucet-message ${faucetMessage.includes('✓') ? 'success' : 'error'}`}>
+                    {faucetMessage}
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -83,11 +124,11 @@ export default function Wallet() {
                 <div className="keys-section">
                   <div className="key-row">
                     <span className="key-label">Spending Key</span>
-                    <code className="key-value">{shieldedAddress.spending_key ? `0x${Buffer.from(shieldedAddress.spending_key).toString('hex').slice(0, 32)}...` : 'N/A'}</code>
+                    <code className="key-value">{shieldedAddress.spending_key ? `0x${shieldedAddress.spending_key.slice(0, 32)}...` : 'N/A'}</code>
                   </div>
                   <div className="key-row">
                     <span className="key-label">Viewing Key</span>
-                    <code className="key-value">{shieldedAddress.viewing_key ? `0x${Buffer.from(shieldedAddress.viewing_key).toString('hex').slice(0, 32)}...` : 'N/A'}</code>
+                    <code className="key-value">{shieldedAddress.viewing_key ? `0x${shieldedAddress.viewing_key.slice(0, 32)}...` : 'N/A'}</code>
                   </div>
                 </div>
 
@@ -145,3 +186,4 @@ export default function Wallet() {
     </div>
   );
 }
+

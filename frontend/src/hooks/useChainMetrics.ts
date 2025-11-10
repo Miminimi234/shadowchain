@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react';
-import { apiUrl } from '../utils/apiBase';
+import { useState, useEffect } from 'react';
 
 export interface ChainMetrics {
   slot: number;
@@ -18,16 +17,15 @@ export interface ChainMetrics {
 }
 
 export function useChainMetrics() {
-  const [fetchedMetrics, setFetchedMetrics] = useState<ChainMetrics | null>(null);
-  const [displaySlot, setDisplaySlot] = useState<number>(0);
+  const [metrics, setMetrics] = useState<ChainMetrics | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchMetrics = async () => {
       try {
-        const response = await fetch(apiUrl('/shadow/info'));
+        const response = await fetch('http://localhost:8899/shadow/info');
         const data = await response.json();
-
+        
         // Map API response to metrics
         const mappedMetrics: ChainMetrics = {
           slot: data.stats?.height || 0,
@@ -44,10 +42,8 @@ export function useChainMetrics() {
           total_stake: data.consensus?.total_stake || 0,
           active_validators: data.consensus?.active_validators || 0,
         };
-
-        // store fetched metrics and initialize displaySlot to the fetched slot
-        setFetchedMetrics(mappedMetrics);
-        setDisplaySlot(mappedMetrics.slot || 0);
+        
+        setMetrics(mappedMetrics);
         setLoading(false);
       } catch (err) {
         console.error('Failed to fetch metrics:', err);
@@ -55,37 +51,11 @@ export function useChainMetrics() {
     };
 
     fetchMetrics();
-    const fetchInterval = setInterval(fetchMetrics, 2000); // Update every 2s
+    const interval = setInterval(fetchMetrics, 2000); // Update every 2s
 
-    // Increment displayed slot every 2s so UI shows slot progression even between API updates
-    const slotTicker = setInterval(() => {
-      setDisplaySlot(s => s + 1);
-    }, 2000);
-
-    return () => {
-      clearInterval(fetchInterval);
-      clearInterval(slotTicker);
-    };
+    return () => clearInterval(interval);
   }, []);
 
-  // Derive effective metrics where slot uses the displaySlot counter.
-  const effectiveMetrics: ChainMetrics = fetchedMetrics
-    ? { ...fetchedMetrics, slot: displaySlot }
-    : {
-      slot: displaySlot,
-      epoch: 0,
-      tps: 0,
-      total_transactions: 0,
-      transparent_txs: 0,
-      shielded_txs: 0,
-      shield_ops: 0,
-      unshield_ops: 0,
-      private_transfers: 0,
-      shielded_pool_size: 0,
-      nullifier_count: 0,
-      total_stake: 0,
-      active_validators: 0,
-    };
-
-  return { metrics: effectiveMetrics, loading };
+  return { metrics, loading };
 }
+

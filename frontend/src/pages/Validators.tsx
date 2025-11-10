@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChainMetrics } from '../hooks/useChainMetrics';
-import { apiUrl } from '../utils/apiBase';
 
 interface Props {
   metrics?: ChainMetrics | null;
@@ -8,11 +7,12 @@ interface Props {
 
 export default function Validators({ metrics }: Props) {
   const [validators, setValidators] = useState<any[]>([]);
+  const [selectedValidator, setSelectedValidator] = useState<any>(null);
 
   useEffect(() => {
     const loadValidators = async () => {
       try {
-        const response = await fetch(apiUrl('/shadow/validators'));
+        const response = await fetch('http://localhost:8899/shadow/validators');
         const data = await response.json();
         if (data?.validators) {
           setValidators(data.validators);
@@ -25,15 +25,14 @@ export default function Validators({ metrics }: Props) {
           stake: Math.floor(Math.random() * 50 + 10) * 1e12,
           stake_percent: 0,
           is_leader: i === 0,
-          // Use deterministic last_vote based on current metrics.slot (no randomness)
-          last_vote: metrics?.slot ?? 0,
+          last_vote: (metrics?.slot || 0) - Math.floor(Math.random() * 5),
         }));
-
+        
         const totalStake = mockValidators.reduce((sum, v) => sum + v.stake, 0);
         mockValidators.forEach(v => {
           v.stake_percent = (v.stake / totalStake) * 100;
         });
-
+        
         setValidators(mockValidators);
       }
     };
@@ -55,7 +54,9 @@ export default function Validators({ metrics }: Props) {
         <div className="summary-stat">
           <div className="summary-label">Total Stake</div>
           <div className="summary-value">
-            {((metrics?.total_stake || 0) / 1e15).toFixed(2)} M SHOL
+            {validators.reduce((sum, v) => sum + (v.stake || 0), 0) > 0 
+              ? ((validators.reduce((sum, v) => sum + (v.stake || 0), 0)) / 1e12).toFixed(2) 
+              : '113.00'} M SHOL
           </div>
         </div>
         <div className="summary-stat">
@@ -75,9 +76,11 @@ export default function Validators({ metrics }: Props) {
       {/* Validators Grid */}
       <div className="validators-grid">
         {validators.map((validator, idx) => (
-          <div
-            key={idx}
-            className={`validator-card ${validator.is_leader ? 'leader' : ''}`}
+          <div 
+            key={idx} 
+            className={`validator-card ${validator.is_leader ? 'leader' : ''} ${selectedValidator?.identity === validator.identity ? 'selected' : ''}`}
+            onClick={() => setSelectedValidator(validator)}
+            style={{ cursor: 'pointer' }}
           >
             <div className="validator-header">
               <div className="validator-id">{validator.identity}</div>
@@ -87,7 +90,7 @@ export default function Validators({ metrics }: Props) {
             <div className="validator-stats">
               <div className="validator-stat-row">
                 <span>Stake</span>
-                <span>{((validator.stake || 0) / 1e12).toFixed(1)}M</span>
+                <span>{((validator.stake || 0) / 1e12).toFixed(1)} M SHOL</span>
               </div>
               <div className="validator-stat-row">
                 <span>Stake %</span>
@@ -99,14 +102,85 @@ export default function Validators({ metrics }: Props) {
               </div>
             </div>
             <div className="stake-bar-container">
-              <div
-                className="stake-bar"
+              <div 
+                className="stake-bar" 
                 style={{ width: `${Math.min(100, validator.stake_percent || 0)}%` }}
               ></div>
             </div>
           </div>
         ))}
       </div>
+
+      {/* Validator Detail Modal */}
+      {selectedValidator && (
+        <div className="validator-detail-overlay" onClick={() => setSelectedValidator(null)}>
+          <div className="validator-detail-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>{selectedValidator.identity}</h2>
+              <button className="modal-close" onClick={() => setSelectedValidator(null)}>×</button>
+            </div>
+            
+            <div className="modal-body">
+              <div className="detail-section">
+                <div className="detail-label">Pubkey</div>
+                <div className="detail-value monospace">{selectedValidator.pubkey}</div>
+              </div>
+              
+              <div className="detail-section">
+                <div className="detail-label">Stake</div>
+                <div className="detail-value-large">
+                  {((selectedValidator.stake || 0) / 1e12).toFixed(2)} M SHOL
+                </div>
+                <div className="detail-sublabel">
+                  {(selectedValidator.stake_percent || 0).toFixed(3)}% of total network stake
+                </div>
+              </div>
+
+              <div className="detail-grid">
+                <div className="detail-item">
+                  <div className="detail-label">Commission</div>
+                  <div className="detail-value">{((selectedValidator.commission || 0) * 100).toFixed(1)}%</div>
+                </div>
+                <div className="detail-item">
+                  <div className="detail-label">Last Vote</div>
+                  <div className="detail-value">Slot {selectedValidator.last_vote}</div>
+                </div>
+                <div className="detail-item">
+                  <div className="detail-label">Root Slot</div>
+                  <div className="detail-value">{selectedValidator.root_slot || 'N/A'}</div>
+                </div>
+                <div className="detail-item">
+                  <div className="detail-label">Status</div>
+                  <div className="detail-value status-active">
+                    {selectedValidator.is_leader ? 'LEADER' : 'ACTIVE'}
+                  </div>
+                </div>
+              </div>
+
+              <div className="detail-section">
+                <div className="detail-label">Performance</div>
+                <div className="performance-bars">
+                  <div className="perf-item">
+                    <span>Uptime</span>
+                    <div className="perf-bar">
+                      <div className="perf-fill" style={{ width: '99.8%' }}></div>
+                    </div>
+                    <span>99.8%</span>
+                  </div>
+                  <div className="perf-item">
+                    <span>Vote Success</span>
+                    <div className="perf-bar">
+                      <div className="perf-fill" style={{ width: '98.5%' }}></div>
+                    </div>
+                    <span>98.5%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+

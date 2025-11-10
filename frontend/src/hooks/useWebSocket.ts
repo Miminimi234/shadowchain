@@ -17,7 +17,7 @@ export function useWebSocket() {
     // For now, use polling instead of WebSocket
     // Real WebSocket implementation commented out for simplicity
     /*
-    const ws = new WebSocket('ws://backend-host/events');
+    const ws = new WebSocket('ws://localhost:8899/events');
     
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
@@ -37,3 +37,4 @@ export function useWebSocket() {
 
   return events;
 }
+
