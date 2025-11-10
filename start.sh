@@ -6,6 +6,7 @@ if [ -n "${BASH_VERSION:-}" ]; then
 fi
 
 APT_UPDATED=0
+PYTHON_BIN=""
 
 apt_install() {
   if ! command -v apt-get >/dev/null 2>&1; then
@@ -27,15 +28,28 @@ log() {
 log "Starting simulation..."
 echo
 
-# Ensure Python 3 is available (Railway containers may not have it preinstalled)
-if ! command -v python3 >/dev/null 2>&1; then
-  log "Python 3 not found. Attempting installation..."
+detect_python() {
+  if command -v python3 >/dev/null 2>&1; then
+    PYTHON_BIN="$(command -v python3)"
+    return 0
+  fi
+  if command -v python >/dev/null 2>&1; then
+    PYTHON_BIN="$(command -v python)"
+    return 0
+  fi
+  return 1
+}
+
+# Ensure Python is available (Railway containers may not have it preinstalled)
+if ! detect_python; then
+  log "Python not found. Attempting installation..."
   if ! apt_install python3 python3-pip; then
     log "apt-get not available; cannot auto-install Python."
   fi
+  detect_python || true
 fi
 
-if ! command -v python3 >/dev/null 2>&1; then
+if [ -z "${PYTHON_BIN}" ]; then
   log "Python 3.8+ is required. Please install it and redeploy."
   exit 1
 fi
@@ -67,7 +81,7 @@ if [ "${NODE_MAJOR}" -lt 16 ]; then
   exit 1
 fi
 
-log "Python: $(python3 --version)"
+log "Python: $("$PYTHON_BIN" --version)"
 log "Node: $(node --version)"
 echo
 
@@ -77,7 +91,7 @@ APP_PORT=${PORT:-3000}
 
 # Launch mock backend
 log "Starting backend (mock-node.py) on http://${API_HOST}:${API_PORT} ..."
-API_HOST=$API_HOST API_PORT=$API_PORT python3 mock-node.py &
+API_HOST=$API_HOST API_PORT=$API_PORT "$PYTHON_BIN" mock-node.py &
 BACKEND_PID=$!
 log "Backend PID: $BACKEND_PID"
 echo

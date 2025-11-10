@@ -1,1 +1,1 @@
-web: python3 mock-node.py
+web: bash start.sh
